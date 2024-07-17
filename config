@@ -2,4 +2,4 @@ step=5
 confidence=0.95
 column=
 value=
-script=radiocarbone.r
+script=radiocarbon.r
