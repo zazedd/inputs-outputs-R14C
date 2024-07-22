@@ -1,4 +1,5 @@
 library(rcarbon)
+library(ggplot2)
 
 # R code itself is really slow
 # Like python, the only things that are fast are functions that call compiled C code.
@@ -44,6 +45,8 @@ if (length(args) == 0) {
   print("Starting...")
 }
 
+date <- Sys.time()
+
 c <- read.csv(args[[1]])
 
 if (length(args) == 3) {
@@ -52,6 +55,7 @@ if (length(args) == 3) {
 
   if (is.na(column) || is.na(value)) {
     print("No subsetting applied")
+    value <- "Everything"
   } else {
     print(paste("Filtering on column:", column, "with value:", value))
 
@@ -69,7 +73,7 @@ c.caldates <- calibrate(x = c$C14Age, errors = c$C14SD, calCurves = "intcal20", 
 
 DK.spd <- spd(c.caldates, timeRange = c(8000, 0))
 
-pdf("plot.pdf")
+pdf(paste("spd-plot-", date, ".pdf", sep = ""))
 
 plot(DK.spd)
 plot(DK.spd, runm = 200, add = TRUE, type = "simple", col = "darkorange", lwd = 1.5, lty = 2) # using a rolling average of 200 years for smoothing
@@ -128,6 +132,36 @@ c <- cbind(c, CalibratedDates)
 c <- cbind(c, new_cols)
 
 cumulative_values <- apply(new_cols, 2, sum)
+
+s <- sum(cumulative_values)
+weight_cumulative_values <- cumulative_values / s
+
+pdf(paste("violin-plot-", date, ".pdf", sep = ""))
+
+plot(weight_cumulative_values)
+
+# Calculate the density
+kde <- density(step_values, weights = weight_cumulative_values)
+kde_df <- data.frame(
+  Density = kde$y,
+  Years = kde$x
+)
+
+plot(kde)
+plot(kde_df)
+print(kde)
+
+# Create the violin plot
+ggplot(kde_df, aes(x = "", y = Years, weight = Density)) +
+  geom_violin(scale = "area", fill = "lightgreen") +
+  scale_y_continuous(limits = c(0, 10000)) +
+  labs(x = "Density", y = "Years") +
+  geom_boxplot(width = 0.05, fill = "white") +
+  xlab(value) +
+  ylab("Calendar years BP") +
+  ggtitle(label = "Distribution of C14 per site", subtitle = "Illustrates periods of biomass burning") +
+  theme_bw()
+dev.off()
 
 new_row <- c(rep("", original_col_len + 1), cumulative_values)
 

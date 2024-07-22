@@ -1,5 +1,5 @@
 step=20
 confidence=0.95
-column=
-value=
+column=Site
+value=Lanslevillard
 script=radiocarbon.r
