@@ -1,0 +1,5 @@
+step=10
+confidence=0.95
+column=Material
+value=charcoal
+script=radiocarbon.r
