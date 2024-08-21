@@ -1,5 +1,5 @@
-step=25
-confidence=0.85
-column=Material
-value=Bone
-script=test.r
+step=5
+confidence=0.94
+column=Mat
+value=Charcoal
+script=radiocarbon.r
