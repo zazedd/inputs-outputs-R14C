@@ -4,7 +4,7 @@ library(ggplot2)
 args <- commandArgs(trailingOnly = TRUE)
 no_trailing_args <- commandArgs(trailingOnly = FALSE)
 script_name_index <- which(grepl("^--file=", no_trailing_args))
-script_name <- sub("^--file=scripts/", "", no_trailing_args[script_name_index])
+script_name <- sub("^--file=*scripts/", "", no_trailing_args[script_name_index])
 script_name <- sub("\\.r$", "", script_name)
 
 print(script_name)
