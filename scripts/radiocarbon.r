@@ -11,6 +11,7 @@ print(script_name)
 
 confidence_interval <- 0.95
 step <- 5
+value <- "Everything"
 
 get_value <- function(i) {
   v <- strsplit(config[[i, 1]], "=")[[1]][2]
@@ -46,7 +47,7 @@ if (length(args) == 0) {
   print("Starting...")
 }
 
-date <- format(Sys.time(), "%d/%m/%Y-%H:%M:%S")
+date <- format(Sys.time(), "%d-%m-%Y@%H:%M:%S")
 
 c <- read.csv(args[[1]])
 
@@ -56,7 +57,6 @@ if (length(args) == 3) {
 
   if (is.na(column) || is.na(value)) {
     print("No subsetting applied")
-    value <- "Everything"
   } else {
     print(paste("Filtering on column:", column, "with value:", value))
 
@@ -74,7 +74,7 @@ c.caldates <- calibrate(x = c$C14Age, errors = c$C14SD, calCurves = "intcal20", 
 
 DK.spd <- spd(c.caldates, timeRange = c(8000, 0))
 
-pdf(paste(script_name, "spd", date, ".pdf", sep = ""))
+pdf(paste(script_name, "spd", date, "pdf", sep = "."))
 
 plot(DK.spd)
 plot(DK.spd, runm = 200, add = TRUE, type = "simple", col = "darkorange", lwd = 1.5, lty = 2) # using a rolling average of 200 years for smoothing
@@ -137,7 +137,7 @@ cumulative_values <- apply(new_cols, 2, sum)
 s <- sum(cumulative_values)
 weight_cumulative_values <- cumulative_values / s
 
-pdf(paste(script_name, "violin", date, ".pdf", sep = ""))
+pdf(paste(script_name, "violin", date, "pdf", sep = "."))
 
 plot(weight_cumulative_values)
 
