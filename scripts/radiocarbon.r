@@ -51,7 +51,18 @@ file_name <- sub("\\.csv$", "", basename(args[1]))
 
 date <- format(Sys.time(), "%d-%m-%Y@%H:%M:%S")
 
-c <- read.csv(args[[1]])
+# determining the separator of the CSV file
+first_line <- readLines(args[[1]], n = 1)
+comma_count <- length(gregexpr(",", first_line)[[1]])
+semicolon_count <- length(gregexpr(";", first_line)[[1]])
+
+if (comma_count > semicolon_count) {
+  sep <- ","
+} else {
+  sep <- ";"
+}
+
+c <- read.csv(args[[1]], sep = sep)
 
 if (length(args) == 3) {
   column <- get_value(3)
