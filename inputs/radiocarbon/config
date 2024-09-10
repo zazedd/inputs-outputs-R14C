@@ -1,5 +1,5 @@
-step=10
-confidence=0.80
+step=13
+confidence=0.90
 column=Site
 value=SMM
 script=radiocarbon.r
