@@ -62,7 +62,7 @@ if (comma_count > semicolon_count) {
   sep <- ";"
 }
 
-c <- read.csv(args[[1]], sep = sep)
+c <- read.csv(args[[1]], sep = sep, stringsAsFactors = FALSE)
 
 if (length(args) == 3) {
   column <- get_value(3)
