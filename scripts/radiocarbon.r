@@ -81,6 +81,9 @@ if (nrow(c) == 0) {
   stop("CAREFUL: No values match the subsetting provided.")
 }
 
+length(c$C14Age)
+length(c$C14SD)
+
 original_col_len <- ncol(c)
 
 c.caldates <- calibrate(x = c$C14Age, errors = c$C14SD, calCurves = "intcal20", eps = 1e-5, ncores = 4, type = "full")
