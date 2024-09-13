@@ -1,12 +1,15 @@
 # Inputs and Outputs for Radiocarbon Calibration Pipeline
 
 They live here.
-testing yesdsad
+
 ## Tutorials
 Here, we present a couple of usage scenarios.  
 Before any of the steps below, you should:
 1. Export the data to a CSV file
-2. Make sure the column that has the C14 dates is called `C14Age`, and the column that has the standard error is called `C14SD`
+2. Make sure the column that has the C14 dates is called `C14Age`, and the column that has the standard error is called `C14SD` 
+
+> [!WARNING]
+> These names are case-sensitive!
 
 ### Scenario 1: New file to calibrate 
 Let's say the file that we want to calibrate is called `example.csv`:
@@ -51,13 +54,17 @@ step=20
 confidence=0.90
 column=Site
 value=SMM
+custom=4000
 script=my_script.r
 ```
 This configuration uses a 20-year step, a confidence interval of 90%, filter on all rows with the value `SMM` on the column named `Site`, and runs the script `my_script.r` on the file.
 
 > [!WARNING]
-> The order of values is important!  
+> The order of values is important! `script` should be the last value.  
 > All values can be empty, except for `script`.
+
+> [!NOTE]
+> `step`, `confidence`, `column`, `value` and `script` need to **always be present**, but you can add your own values like `custom` in the example above. 
 
 ### Default and folder `config`s
 Folder-specific `config` files override the default for all CSV files within that folder. If a file lacks a folder `config`, the default `config` is applied. Folder `config` files have the same structure and content as the default `config`.
