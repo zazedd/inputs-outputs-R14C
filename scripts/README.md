@@ -1,0 +1,170 @@
+## Making a script
+
+## Rcarbon
+
+See the package's [official showcase](https://cran.r-project.org/web/packages/rcarbon/vignettes/rcarbon.html) for information on how to use it.
+
+## Inputs
+
+The pipeline will execute the script in a specific manner:
+
+```
+Rscript script.r /path/to/input.csv /path/to/output.csv /path/to/config
+```
+
+Where `/path/to/config` is the default configuration or the `config` file inside the folder where `/path/to/input.csv` is located.  
+The [template](#Template) takes care of these system arguments.
+
+## Outputs
+
+There are two types of outputs, CSV outputs and PDF outputs.
+
+### CSV
+
+To output to a CSV simply create a valid dataframe, and write it with name `args[[2]]`:
+
+```R
+write.csv(dataframe, args[[2]], row.names = FALSE)
+```
+
+There is no support for more than one CSV output currently.
+
+### PDF
+
+The name of the output PDF should be as follows:
+* `input.script.type.date.pdf`
+  - Where `input` is the name of the input file, without its extension
+  - `script` is the name of the script, without its extension
+  - `type` is the type of graph it contains, it is up to you to name it
+
+The `input`, `script` and `date` variables are already provided in the [template](#Template) as `file_name`, `script_name` and `date` respectively. 
+ 
+To create a PDF with this name you can do the following:
+
+```R
+# Create a pdf device
+pdf(paste(file_name, script_name, "spd", date, "pdf", sep = "."))
+
+# Plot as many things as needed
+plot(DK.spd)
+
+# Then close the device. Done!
+dev.off()
+```
+
+## Template
+
+You can use this template as a starting point for your script:
+
+```R
+
+# Loading required libraries
+library(rcarbon)
+library(ggplot2)
+
+# Grabbing command line arguments
+args <- commandArgs(trailingOnly = TRUE)
+no_trailing_args <- commandArgs(trailingOnly = FALSE)
+
+# We need the script name to create the output file
+script_name_index <- which(grepl("^--file=", no_trailing_args))
+script_name <- sub("^--file=", "", no_trailing_args[script_name_index])
+script_name <- sub("\\.r$", "", basename(script_name))
+
+# Default values for if config is missing
+confidence_interval <- 0.95
+step <- 5
+value <- "Everything"
+
+# Function to grab values from the config file based on the line they are on
+# Example config:
+# step=10
+# confidence=0.9
+# column=
+# value=
+# script=radiocarbon.r
+#
+# get_value(1) would give us 10 (step)
+# get_value(3) would give us NA (there's no column)
+get_value <- function(i) {
+  v <- strsplit(config[[i, 1]], "=")[[1]][2]
+  return(v)
+}
+
+# Argument handling
+if (length(args) == 0) {
+  stop("At least one argument must be supplied (input file).csv", call. = FALSE)
+} else if (length(args) == 1) {
+  stop("CAREFUL: No output file specified.", call = FALSE)
+} else if (length(args) == 2) {
+  print("No config file specified. Using default values. (Confidence Interval -> 0.95, Step -> 5 years, No Filtering)")
+} else if (length(args) == 3) {
+  print("All arguments specified.")
+  config <- read.delim2(args[[3]], header = FALSE, sep = "\n")
+
+  # Grab step and confidence from the config (could be NA)
+  step_cfg <- get_value(1)
+  confidence_interval_cfg <- get_value(2)
+
+  # Checking if they are present
+
+  if (is.na(step_cfg)) {
+    print("No Step Interval specified, using default value")
+  } else {
+    step <- as.numeric(step_cfg)
+  }
+
+  if (is.na(confidence_interval_cfg)) {
+    print("No Confidence Interval specified, using default value")
+  } else {
+    confidence_interval <- as.numeric(confidence_interval_cfg)
+  }
+
+  print(paste("Confidence Interval ->", confidence_interval, ", Step ->", step, "years"))
+
+  print("Starting...")
+}
+
+# The filename is the name of the input file without its extension
+file_name <- sub("\\.csv$", "", basename(args[1]))
+
+# Pretty date formatting
+date <- format(Sys.time(), "%d-%m-%Y@%H:%M:%S")
+
+# Determining the separator of the CSV file (can be ',' or ';')
+first_line <- readLines(args[[1]], n = 1)
+comma_count <- length(gregexpr(",", first_line)[[1]])
+semicolon_count <- length(gregexpr(";", first_line)[[1]])
+
+if (comma_count > semicolon_count) {
+  sep <- ","
+} else {
+  sep <- ";"
+}
+
+# Read the csv with that delimiter!
+c <- read.csv(args[[1]], sep = sep, stringsAsFactors = FALSE)
+
+# Lets apply the filtering, if it is specified
+if (length(args) == 3) {
+  column <- get_value(3)
+  value <- get_value(4)
+
+  if (is.na(column) || is.na(value)) {
+    print("No subsetting applied")
+  } else {
+    print(paste("Filtering on column:", column, "with value:", value))
+
+    c <- subset(c, c[[column]] == value)
+  }
+}
+
+# Check if the subsetting returned any values
+if (nrow(c) == 0) {
+  stop("CAREFUL: No values match the subsetting provided.")
+}
+
+# We are good to go!
+```
+
+This header grab the system arguments for `/path/to/input.csv`, `/path/to/output.csv` and `/path/to/config`, read these files, and 
