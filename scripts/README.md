@@ -1,4 +1,4 @@
-## Making a script
+# Creating scripts
 
 ## Rcarbon
 
