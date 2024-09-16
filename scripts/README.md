@@ -176,11 +176,10 @@ if (nrow(c) == 0) {
 
 You can add custom parameters to the config file. 
 
-For example, if you want to add a maximum age filter (max_age), you can do so by adding max_age=8000 to the end of the config file and retrieving it with:
+For example, if you want to add a maximum age filter (`max_age`), you can do so by adding `max_age=8000` to the end of the config file and retrieving it with:
 
 ```R
 max_age_cfg <- get_value(5)
-
 ```
 
 > [!WARNING]
